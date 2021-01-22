@@ -31,6 +31,7 @@ import org.compiere.model.GridField;
 import org.compiere.model.GridFieldVO;
 import org.compiere.model.MColumn;
 import org.compiere.model.MTable;
+import org.compiere.model.MSysConfig;
 import org.compiere.model.PO;
 import org.compiere.model.POInfo;
 import org.compiere.util.DisplayType;
@@ -95,7 +96,7 @@ public class DefaultPOSerializer implements IPOSerializer, IPOSerializerFactory 
 				value = po.get_Value(i);
 
 			if (value != null) {
-				String propertyName = columnName;
+				String propertyName = MSysConfig.getBooleanValue("REST_COLUMNNAME_TOLOWERCASE", false) ? TypeConverterUtils.toPropertyName(columnName) : columnName;
 				Object jsonValue = TypeConverterUtils.toJsonValue(column, value);
 				if (jsonValue != null) {
 					if (jsonValue instanceof Number)
@@ -211,7 +212,7 @@ public class DefaultPOSerializer implements IPOSerializer, IPOSerializerFactory 
 		if (!Util.isEmpty(column.getDefaultValue(), true)) {
 			GridFieldVO vo = GridFieldVO.createParameter(Env.getCtx(), 0, 0, 0, column.getAD_Column_ID(), column.getColumnName(), column.getName(), 
 						DisplayType.isLookup(column.getAD_Reference_ID()) 
-						? (DisplayType.isText(column.getAD_Reference_ID()) || DisplayType.List==column.getAD_Reference_ID() ? DisplayType.String : DisplayType.ID) 
+						? (DisplayType.isText(column.getAD_Reference_ID()) || DisplayType.isList(column.getAD_Reference_ID()) ? DisplayType.String : DisplayType.ID) 
 						: column.getAD_Reference_ID(), 0, false, false, "");
 			GridField gridField = new GridField(vo);
 			Object defaultValue = gridField.getDefault();
